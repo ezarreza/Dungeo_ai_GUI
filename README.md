@@ -3,7 +3,7 @@
 
 [![Support Me on Ko-fi](https://img.shields.io/badge/Support%20Me%20on-Ko--fi-ff5f5f?style=for-the-badge\&logo=ko-fi\&logoColor=white)](https://ko-fi.com/laszlobeer)
 
-![Dungeo AI RPG Adventure Screenshot](screenshot.png)
+![Dungeo AI RPG Adventure Screenshot](Screen Capture_select-area_20250625183819.gif)
 
 **Dungeo AI** is an immersive, AI-driven RPG that merges advanced storytelling with rich visuals and voice narration. Powered by [Ollama](https://ollama.com/) and [AllTalk TTS](https://github.com/erew123/alltalk_tts), every adventure is unique, with dynamic world states and permanent consequences based on your choices.
 
