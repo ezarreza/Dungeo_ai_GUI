@@ -49,7 +49,7 @@
 
    ```bash
    git clone https://github.com/Laszlobeer/Dungeo_ai_GUI.git
-   cd Dungeo_ai_GUI
+   cd Dungeo_ai_GUI-main
    ```
 
 2. **Install dependencies**
