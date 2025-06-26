@@ -1,0 +1,17 @@
+### Adventure Setting ###
+Genre: Fantasy
+Player Character: Alex the Peasant
+Starting Scenario: You're toiling in the fields of a small village when
+
+
+Dungeon Master: A sudden commotion breaks out at the village square. A traveling merchant's wagon has overturned, spilling its goods everywhere! The merchant is screaming about 'the good china', while villagers scramble to grab the shiny trinkets before they disappear.
+
+### Persistent World State ###
+### Current World State ###
+Allies: None
+Enemies: None
+Reputation: 0
+Active Quests: None
+Completed Quests: None
+Recent Consequences:
+  - Start: A sudden commotion breaks out at the village square

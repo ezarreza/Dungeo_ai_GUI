@@ -63,20 +63,29 @@ def get_current_state(player_choices):
 
 def get_ai_response(prompt, model):
     try:
+        # Add emphasis to the most important rules
+        emphasis_prompt = (
+            "IMPORTANT: Describe ONLY consequences. Never narrate player actions. "
+            "Never offer choices. Never ask questions. Keep response under 3 sentences.\n\n"
+            + prompt
+        )
+        
         response = requests.post(
             "http://localhost:11434/api/generate",
             json={
                 "model": model,
-                "prompt": prompt,
+                "prompt": emphasis_prompt,
                 "stream": False,
                 "options": {
                     "temperature": 0.7,
-                    "stop": ["\n\n"],
+                    "num_ctx": 4096,
+                    "stop": ["\n\n", "Player:", "Dungeon Master:"],
                     "min_p": 0.05,
-                    "top_k": 40
+                    "top_k": 40,
+                    "repeat_penalty": 1.2
                 }
             },
-            timeout=60
+            timeout=90
         )
         response.raise_for_status()
         json_resp = response.json()
@@ -125,55 +134,56 @@ def sanitize_response(response):
     if not response:
         return "The story continues..."
 
+    # Remove any explicit player action descriptions
+    player_action_patterns = [
+        r"you (?:try to|attempt to|begin to|start to|decide to) .+?\.", 
+        r"you (?:successfully|carefully|quickly) .+?\.", 
+        r"you (?:manage to|fail to) .+?\.",
+        r"you (?:are|were) .+?\.", 
+        r"you (?:have|had) .+?\.",
+        r"you (?:feel|felt) .+?\.",
+        r"you (?:see|saw) .+?\.",
+        r"you (?:notice|noticed) .+?\.",
+        r"you (?:hear|heard) .+?\."
+    ]
+    
+    for pattern in player_action_patterns:
+        response = re.sub(pattern, '', response, flags=re.IGNORECASE)
+
+    # Remove choice prompts and labels
+    structure_phrases = [
+        r"a\)", r"b\)", r"c\)", r"d\)", r"e\)", 
+        r"option [a-e]:", r"immediate consequence:", r"new situation:", 
+        r"next challenges:", r"choices:", r"options:"
+    ]
+    for phrase in structure_phrases:
+        pattern = re.compile(phrase, re.IGNORECASE)
+        response = pattern.sub('', response)
+
+    # Remove player direction prompts
     question_phrases = [
         r"what will you do", r"how do you respond", r"what do you do",
         r"what is your next move", r"what would you like to do",
         r"what would you like to say", r"how will you proceed",
         r"do you:", r"choose one", r"select an option", r"pick one"
     ]
-
     for phrase in question_phrases:
         pattern = re.compile(rf'{phrase}.*?$', re.IGNORECASE)
         response = pattern.sub('', response)
 
-    structure_phrases = [
-        r"a\)", r"b\)", r"c\)", r"d\)", r"e\)", r"option [a-e]:",
-        r"immediate consequence:", r"new situation:", r"next challenges:",
-        r"choices:", r"options:"
-    ]
-    for phrase in structure_phrases:
-        pattern = re.compile(phrase, re.IGNORECASE)
-        response = pattern.sub('', response)
-
-    player_action_patterns = [
-        r"you (?:try to|attempt to|begin to|start to|decide to) .+?\.", 
-        r"you (?:successfully|carefully|quickly) .+?\.", 
-        r"you (?:manage to|fail to) .+?\."
-    ]
-    
-    for pattern in player_action_patterns:
-        response = re.sub(pattern, '', response, flags=re.IGNORECASE)
-
-    response = re.sub(
-        r'(?:\n|\. )?[A-Ea-e]\)[^\.\?\!\n]*(\n|\. |$)', 
-        '', 
-        response,
-        flags=re.IGNORECASE
-    )
-    
-    response = re.sub(
-        r'(?:something else|other) \(.*?\)', 
-        '', 
-        response, 
-        flags=re.IGNORECASE
-    )
-
+    # Clean up formatting
     response = re.sub(r'\s{2,}', ' ', response).strip()
-
+    
+    # Ensure proper sentence endings
     if response and response[-1] not in ('.', '!', '?', ':', ','):
         response += '.'
     
+    # Remove state tracking placeholders
     response = re.sub(r'\[[^\]]*State Tracking[^\]]*\]', '', response)
+    
+    # Final cleanup
+    response = re.sub(r'\.\.+', '.', response)
+    response = response.replace(' ,', ',').replace(' .', '.')
     
     return response
 
