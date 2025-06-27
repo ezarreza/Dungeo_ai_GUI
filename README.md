@@ -133,5 +133,3 @@ If you enjoy **Dungeo AI** and want to support continued development, consider b
 
 ---
 
-Let me know if you want this in Markdown file format (`README.md`) or want a version optimized for GitHub Pages or documentation tools like MkDocs.
-
